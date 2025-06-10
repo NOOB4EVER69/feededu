@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام تقييم لجان الامتحانات</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --gray-color: #95a5a6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .intro-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border-left: 5px solid var(--primary-color);
+            display: none;
+        }
+
+        .intro-card.show {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .intro-card h2 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+
+        .intro-card p {
+            margin-bottom: 15px;
+        }
+
+        .start-btn {
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: block;
+            margin: 20px auto;
+            transition: all 0.3s;
+        }
+
+        .start-btn:hover {
+            background-color: #27ae60;
+            transform: translateY(-2px);
+        }
+
+        .student-counter {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .question-container {
+            background-color: white;
+            margin-bottom: 15px;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+        }
+
+        .question-container:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .question {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            color: var(--dark-color);
+        }
+
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .option {
+            flex: 1 1 45%;
+            min-width: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            padding: 12px 15px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            background-color: var(--light-color);
+            border: 2px solid #ddd;
+            text-align: center;
+        }
+
+        .option:hover {
+            background-color: #e0e0e0;
+        }
+
+        .option.selected {
+            background-color: var(--light-color);
+            font-weight: bold;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.3);
+        }
+
+        .option.selected.good {
+            border-color: var(--success-color);
+            box-shadow: 0 0 0 2px rgba(46, 204, 113, 0.3);
+        }
+
+        .option.selected.bad {
+            border-color: var(--danger-color);
+            box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.3);
+        }
+
+        .option input {
+            margin-left: 8px;
+            display: none;
+        }
+
+        .buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+            padding: 0 10px;
+        }
+
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            font-weight: bold;
+            flex: 1 1 200px;
+            max-width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        #nextBtn {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        #finishBtn {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+        #printBtn {
+            background-color: var(--primary-color);
+            color: white;
+            display: none;
+        }
+
+        #backBtn {
+            background-color: var(--gray-color);
+            color: white;
+            display: none;
+        }
+
+        .report {
+            display: none;
+            margin-top: 30px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .report h2 {
+            text-align: center;
+            color: var(--dark-color);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light-color);
+        }
+
+        .report-summary {
+            background-color: var(--light-color);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .report-item {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+            align-items: center;
+        }
+
+        .report-question {
+            flex: 1 1 100%;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .report-result {
+            flex: 0 0 40px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .report-stats {
+            flex: 1 1 calc(100% - 40px);
+            text-align: left;
+            color: var(--gray-color);
+            font-size: 0.9rem;
+        }
+
+        .good-result {
+            color: var(--success-color);
+        }
+
+        .bad-result {
+            color: var(--danger-color);
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin: 5px 0;
+            height: 10px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 5px;
+            background-color: var(--primary-color);
+            transition: width 0.5s ease;
+        }
+
+        .error-message {
+            color: var(--danger-color);
+            text-align: center;
+            margin: 15px 0;
+            font-weight: bold;
+            display: none;
+            animation: shake 0.5s;
+        }
+
+        .help-icon {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            transition: all 0.3s;
+        }
+
+        .help-icon:hover {
+            transform: scale(1.1);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            20%,
+            60% {
+                transform: translateX(-5px);
+            }
+
+            40%,
+            80% {
+                transform: translateX(5px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            header {
+                padding: 15px 0;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .question {
+                font-size: 1rem;
+            }
+
+            .option {
+                flex: 1 1 100%;
+                padding: 10px;
+                font-size: 0.9rem;
+            }
+
+            button {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+
+            .report-question {
+                font-size: 0.9rem;
+            }
+        }
+
+        @media print {
+            .no-print {
+                display: none;
+            }
+
+            .report {
+                display: block !important;
+                box-shadow: none;
+                padding: 0;
+            }
+
+            .report-item {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header class="animate__animated animate__fadeInDown">
+            <h1>نظام تقييم لجان الامتحانات</h1>
+            <p class="subtitle">تقييم سير العملية الامتحانية وجودة الخدمات المقدمة</p>
+        </header>
+
+        <div id="introCard" class="intro-card animate__animated animate__fadeIn">
+            <h2>مرحبًا بك في نظام التقييم</h2>
+            <p>هذا النظام مصمم لتقييم سير العملية الامتحانية وجودة الخدمات المقدمة في لجان الامتحانات.</p>
+            <p>سيتم سؤالك عن عدة نقاط مهمة تتعلق بتنظيم اللجنة ومدى راحة الطلاب وجودة الخدمات.</p>
+            <p>جميع الإجابات سرية وسيتم استخدامها لتحسين العملية الامتحانية فقط.</p>
+            <button id="startBtn" class="start-btn animate__animated animate__pulse animate__infinite">
+                بدء التقييم
+            </button>
+        </div>
+
+        <div id="formContainer" style="display: none;">
+            <div class="student-counter no-print">
+                التقييم رقم: <span id="studentNumber">1</span>
+            </div>
+
+            <div id="errorMessage" class="error-message">
+                الرجاء الإجابة على جميع الأسئلة قبل المتابعة!
+            </div>
+
+            <div id="questionsContainer">
+                <!-- Questions will be inserted here by JavaScript -->
+            </div>
+
+            <div class="buttons no-print">
+                <button id="backBtn">
+                    <span>←</span> الرجوع
+                </button>
+                <button id="nextBtn">
+                    <span>→</span> التالي (تقييم جديد)
+                </button>
+                <button id="finishBtn">
+                    <span>✓</span> إنهاء وعرض النتائج
+                </button>
+                <button id="printBtn">
+                    <span>🖨️</span> طباعة التقرير
+                </button>
+            </div>
+        </div>
+
+        <div id="report" class="report">
+            <h2>التقرير النهائي لتقييم لجان الامتحانات</h2>
+            <div id="reportSummary" class="report-summary">
+                <!-- Summary will be inserted here -->
+            </div>
+            <div id="reportContent">
+                <!-- Report content will be inserted here by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <div id="helpIcon" class="help-icon no-print" title="مساعدة">؟</div>
+
+    <script>
+        // Questions data
+        const questions = [
+            "هو اتعمل كل اللي لازم من تأمين قبل وأثناء الامتحان؟",
+            "وزعوا ورق الإجابة قبل ما الامتحان يبتدي ولا لأ؟",
+            "كراسة الأسئلة اتوزعت في معادها ولا اتأخروا؟",
+            "الملاحظين بصّوا كويس على بيانات الطلبة وتأكدوا إنها صح؟",
+            "الكراسي كانت مريحة وكويسة للطلبة في اللجنة؟",
+            "كان في هوا كفاية في اللجنة ولا الدنيا كانت مكتومة؟",
+            "الإضاءة كانت كويسة ولا فيه ناس اشتكوا إنها مش كفاية؟",
+            "الملاحظين كانوا بيهدّوا الطلبة ويطمنوهم ولا لأ؟",
+            "رئيس اللجنة أو المراقب جهوا اللجنة علشان يطمنوا الطلبة ويشيلوا منهم رهبة الامتحان؟",
+            "الامتحان كان ماشي من السهل للصعب ولا كله كان معقّد؟",
+            "كان في مشاكل في الطباعة في ورق الأسئلة أو الإجابة؟",
+            "كان فيه أخطاء في الامتحان نفسه ولا كلّه تمام؟",
+            "كان فيه طلبة باين عليهم التوتر أو القلق وهما بيجاوبوا؟",
+            "الجو في اللجنة كان فيه توتر ودوشة ولا كان هادي؟",
+            "الملاحظين كانوا بيفكروا الطلبة بالوقت كل شوية؟",
+            "حد غش في اللجنة؟",
+            "حصل شغب أو دوشة أو مشاكل جوه اللجنة؟",
+            "حد تعب أو جاله حالة مرضية وهو بيأدي الامتحان؟"
+        ];
+
+        // Store all students' answers
+        let allAnswers = [];
+        let currentStudentNumber = 1;
+        let currentQuestionIndex = 0;
+
+        // DOM elements
+        const introCard = document.getElementById('introCard');
+        const formContainer = document.getElementById('formContainer');
+        const startBtn = document.getElementById('startBtn');
+        const backBtn = document.getElementById('backBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const finishBtn = document.getElementById('finishBtn');
+        const printBtn = document.getElementById('printBtn');
+        const errorMessage = document.getElementById('errorMessage');
+        const helpIcon = document.getElementById('helpIcon');
+
+        // Initialize the form
+        function initializeForm() {
+            const questionsContainer = document.getElementById('questionsContainer');
+            questionsContainer.innerHTML = '';
+
+            questions.forEach((question, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question-container animate__animated animate__fadeIn';
+                questionDiv.style.animationDelay = `${index * 0.05}s`;
+                questionDiv.innerHTML = `
+                    <div class="question">${index + 1}. ${question}</div>
+                    <div class="options">
+                        <div class="option" onclick="selectOption(this, ${index}, 'good')">
+                            <input type="radio" name="q${index}" id="q${index}_good" value="good">
+                            <label for="q${index}_good">✓ نعم</label>
+                        </div>
+                        <div class="option" onclick="selectOption(this, ${index}, 'bad')">
+                            <input type="radio" name="q${index}" id="q${index}_bad" value="bad">
+                            <label for="q${index}_bad">✗ لا</label>
+                        </div>
+                    </div>
+                `;
+                questionsContainer.appendChild(questionDiv);
+            });
+        }
+
+        // Select option handler
+        function selectOption(element, questionIndex, value) {
+            const options = document.querySelectorAll(`.question-container:nth-child(${questionIndex + 1}) .option`);
+            options.forEach(opt => {
+                opt.classList.remove('selected', 'good', 'bad');
+            });
+
+            element.classList.add('selected', value);
+
+            const radio = element.querySelector('input');
+            radio.checked = true;
+
+            // Hide error message when an option is selected
+            errorMessage.style.display = 'none';
+        }
+
+        // Collect current student's answers
+        function collectAnswers() {
+            const answers = [];
+            let allAnswered = true;
+
+            for (let i = 0; i < questions.length; i++) {
+                const selectedOption = document.querySelector(`input[name="q${i}"]:checked`);
+                if (selectedOption) {
+                    answers.push(selectedOption.value);
+                } else {
+                    allAnswered = false;
+                    // Highlight unanswered question
+                    const questionDiv = document.querySelector(`.question-container:nth-child(${i + 1})`);
+                    questionDiv.style.borderLeft = '4px solid var(--danger-color)';
+                    questionDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+
+            if (!allAnswered) {
+                errorMessage.style.display = 'block';
+                return null;
+            }
+
+            return answers;
+        }
+
+        // Generate report
+        function generateReport() {
+            if (allAnswers.length === 0) {
+                showError('لا توجد بيانات لتوليد التقرير!');
+                return;
+            }
+
+            const reportContent = document.getElementById('reportContent');
+            reportContent.innerHTML = '';
+
+            // Calculate statistics for each question
+            let totalGood = 0;
+            let totalBad = 0;
+
+            for (let q = 0; q < questions.length; q++) {
+                let goodCount = 0;
+                let badCount = 0;
+
+                allAnswers.forEach(studentAnswers => {
+                    if (studentAnswers[q] === 'good') {
+                        goodCount++;
+                        totalGood++;
+                    } else {
+                        badCount++;
+                        totalBad++;
+                    }
+                });
+
+                const percentage = Math.round((goodCount / allAnswers.length) * 100);
+                const result = goodCount >= badCount ? '✓' : '✗';
+                const resultClass = goodCount >= badCount ? 'good-result' : 'bad-result';
+
+                const reportItem = document.createElement('div');
+                reportItem.className = 'report-item';
+                reportItem.innerHTML = `
+                    <div class="report-question">${q + 1}. ${questions[q]}</div>
+                    <div class="report-result ${resultClass}">${result}</div>
+                    <div class="report-stats">
+                        <div>${goodCount} نعم / ${badCount} لا</div>
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: ${percentage}%"></div>
+                        </div>
+                        <div>${percentage}%</div>
+                    </div>
+                `;
+                reportContent.appendChild(reportItem);
+            }
+
+            // Generate summary
+            const totalPercentage = Math.round((totalGood / (totalGood + totalBad)) * 100);
+            const summaryClass = totalPercentage >= 50 ? 'good-result' : 'bad-result';
+            const summaryText = totalPercentage >= 50 ?
+                'التقييم العام إيجابي' : 'يوجد مجال للتحسين في بعض النقاط';
+
+            document.getElementById('reportSummary').innerHTML = `
+                <div>عدد التقييمات: ${allAnswers.length}</div>
+                <div class="${summaryClass}" style="font-size: 1.2rem; margin: 10px 0;">
+                    ${summaryText} (${totalPercentage}%)
+                </div>
+                <div>إجمالي الإيجابيات: ${totalGood} | إجمالي السلبيات: ${totalBad}</div>
+            `;
+
+            document.getElementById('report').style.display = 'block';
+            document.getElementById('printBtn').style.display = 'inline-block';
+            document.getElementById('backBtn').style.display = 'inline-block';
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('finishBtn').style.display = 'none';
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Show error message
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            setTimeout(() => {
+                errorMessage.style.animation = 'shake 0.5s';
+                setTimeout(() => {
+                    errorMessage.style.animation = '';
+                }, 500);
+            }, 10);
+        }
+
+        // Event listeners
+        startBtn.addEventListener('click', () => {
+            introCard.classList.remove('animate__fadeIn');
+            introCard.classList.add('animate__fadeOut');
+
+            setTimeout(() => {
+                introCard.style.display = 'none';
+                formContainer.style.display = 'block';
+                initializeForm();
+
+                // Animate form in
+                setTimeout(() => {
+                    formContainer.style.opacity = '1';
+                }, 10);
+            }, 500);
+        });
+
+        nextBtn.addEventListener('click', () => {
+            const answers = collectAnswers();
+            if (answers) {
+                allAnswers.push(answers);
+                currentStudentNumber++;
+                document.getElementById('studentNumber').textContent = currentStudentNumber;
+
+                // Reset form with animation
+                const questionsContainer = document.getElementById('questionsContainer');
+                questionsContainer.style.animation = 'fadeOut 0.5s';
+
+                setTimeout(() => {
+                    initializeForm();
+                    questionsContainer.style.animation = 'fadeIn 0.5s';
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }, 500);
+            }
+        });
+
+        finishBtn.addEventListener('click', () => {
+            const answers = collectAnswers();
+            if (answers) {
+                allAnswers.push(answers);
+            }
+
+            if (allAnswers.length > 0) {
+                formContainer.style.animation = 'fadeOut 0.5s';
+
+                setTimeout(() => {
+                    formContainer.style.display = 'none';
+                    generateReport();
+                }, 500);
+            } else {
+                showError('لا توجد بيانات لتوليد التقرير!');
+            }
+        });
+
+        backBtn.addEventListener('click', () => {
+            document.getElementById('report').style.display = 'none';
+            formContainer.style.display = 'block';
+            document.getElementById('printBtn').style.display = 'none';
+            document.getElementById('backBtn').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'inline-block';
+            document.getElementById('finishBtn').style.display = 'inline-block';
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        printBtn.addEventListener('click', () => {
+            window.print();
+        });
+
+        helpIcon.addEventListener('click', () => {
+            alert("تعليمات الاستخدام:\n\n1. اقرأ كل سؤال بعناية\n2. اختر 'نعم' إذا كانت الإجابة إيجابية أو 'لا' إذا كانت سلبية\n3. يجب الإجابة على جميع الأسئلة قبل المتابعة\n4. يمكنك تقييم عدة لجان ثم عرض التقرير النهائي\n5. يمكنك طباعة التقرير عند الانتهاء");
+        });
+
+        // Initialize the intro card when page loads
+        window.onload = () => {
+            introCard.classList.add('show');
+        };
+    </script>
+</body>
+
+</html>
